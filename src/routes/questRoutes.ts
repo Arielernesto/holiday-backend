@@ -65,8 +65,8 @@ router.post('/', async (req, res) => {
     // Extraer errores específicos de cada campo
     const fieldErrors: Record<string, string[]> = {};
     console.log(parseResult)
-    if (parseResult.error && parseResult.error.errors && Array.isArray(parseResult.error.errors)) {
-      parseResult.error.errors.forEach((error) => {
+    if (parseResult.error.issues && Array.isArray(parseResult.error.issues)) {
+      parseResult.error.issues.forEach((error) => {
         const fieldPath = error.path.join('.');
         if (!fieldErrors[fieldPath]) {
           fieldErrors[fieldPath] = [];
