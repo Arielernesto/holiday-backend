@@ -62,9 +62,23 @@ router.post('/', async (req, res) => {
   const parseResult = questZodSchema.safeParse(req.body);
   console.log(req.body)
   if (!parseResult.success) {
+    // Extraer errores específicos de cada campo
+    const fieldErrors: Record<string, string[]> = {};
+    console.log(parseResult)
+    if (parseResult.error && parseResult.error.errors && Array.isArray(parseResult.error.errors)) {
+      parseResult.error.errors.forEach((error) => {
+        const fieldPath = error.path.join('.');
+        if (!fieldErrors[fieldPath]) {
+          fieldErrors[fieldPath] = [];
+        }
+        fieldErrors[fieldPath].push(error.message);
+      });
+    }
+    
     return res.status(400).json({
-      error: 'Invalid input',
-      details: parseResult.error
+      error: 'Validación fallida',
+      details: fieldErrors,
+      message: 'Por favor, verifica los campos requeridos y sus valores.'
     });
   }
 
@@ -72,9 +86,14 @@ router.post('/', async (req, res) => {
     const data = { ...parseResult.data, ip: req.ip, userToken: generateSurveyToken() };
     const newQuest = new Quest(data);
     const saved = await newQuest.save();
-    res.status(201).json({ token: saved.userToken });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err });
+    res.status(201).json({ success: true, token: saved.userToken });
+  } catch (err: any) {
+    console.error('Error saving quest:', err);
+    res.status(500).json({ 
+      error: 'Error al guardar la encuesta', 
+      details: err.message,
+      message: 'Hubo un problema al guardar tu encuesta. Por favor, intenta de nuevo.'
+    });
   }
 });
 
