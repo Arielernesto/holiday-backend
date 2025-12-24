@@ -5,16 +5,38 @@ import { questZodSchema } from '../zod/questSchema';
 
 const router = express.Router();
 router.get('/all', async (req, res) => {
-
   try {
-    const quest = await Quest.find();
+    const quest = await Quest.find({}, {
+      submittedAt: 1,
+      experience: 1,
+      role: 1,
+      work_mode: 1,
+      company_size: 1,
+      salary_satisfaction: 1,
+      language: 1,
+      secondary_languages: 1,
+      os: 1,
+      editor: 1,
+      terminal: 1,
+      keyboard: 1,
+      frameworks: 1,
+      tools: 1,
+      database: 1,
+      ai_tools: 1,
+      testing: 1,
+      learning: 1,
+      challenge: 1,
+      ai_impact: 1,
+      tech_content: 1,
+      wish: 1,
+      prediction: 1
+    });
 
     res.status(200).json(quest);
   } catch (error) {
     res.status(500).json({ error: 'Error al buscar encuestas', details: error });
   }
 });
-
 router.get('/verify/:session', async (req, res) => {
   const { session } = req.params;
 
